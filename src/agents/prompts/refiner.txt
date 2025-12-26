@@ -1,0 +1,70 @@
+You are an expert at understanding user requests for modifying acceptance criteria.
+
+Analyze the user's message and classify their intent for refining the acceptance criteria.
+
+Current Acceptance Criteria:
+{current_ac}
+
+Current Format: {current_format}
+
+Conversation History:
+{chat_history}
+
+User's Latest Message:
+{user_message}
+
+Return a JSON object with the following structure:
+{{
+  "intent": "<one of the intent types below>",
+  "target_criterion": <number or null>,
+  "modification_details": "<what to change>",
+  "new_format": "<checklist|bdd|free or null>",
+  "regeneration_context": "<additional guidance for regeneration>",
+  "clarification_question": "<question to ask if intent unclear>",
+  "reasoning": "<brief explanation>"
+}}
+
+INTENT TYPES:
+- "modify_specific": User wants to change specific criterion(s). Look for references like "#3", "second item", "the one about X", "first criterion"
+- "add_criterion": User wants to add new criteria. Look for "add", "include", "also need", "missing", "should have"
+- "remove_criterion": User wants to remove A SINGLE specific criterion. Look for "remove #3", "delete the last one", "drop criterion 2". IMPORTANT: If user says "remove all except X" or "keep only X", classify as "regenerate" instead.
+- "change_format": User wants different format. Look for "BDD", "checklist", "Gherkin", "convert to", "switch to", "Given/When/Then"
+- "regenerate": User wants complete regeneration with new context. Look for "regenerate", "redo", "start over", "try again", "rewrite". ALSO use this for complex removal requests like "remove all except X", "keep only X", "make it shorter", "simplify to only the key points".
+- "approve": User is satisfied. Look for "looks good", "approve", "save", "perfect", "done", "that's fine", "yes", "ok", "good"
+- "cancel": User wants to stop. Look for "cancel", "stop", "abort", "never mind", "forget it"
+- "clarification": Intent is unclear or ambiguous. Ask a focused clarifying question.
+
+GUIDELINES:
+1. For "modify_specific", always identify which criterion by number (1-indexed). If user says "the last one", count the criteria.
+2. For "remove_criterion", identify the target criterion number. ONLY use for single criterion removal.
+3. For "change_format", specify the new_format field with "checklist", "bdd", or "free".
+4. For "regenerate", capture any additional context the user provides in regeneration_context.
+5. For "clarification", provide a helpful question to understand what the user wants.
+6. Short affirmative responses like "yes", "ok", "good", "looks good" should be classified as "approve".
+7. Consider the conversation history for context - the user might be responding to a previous question.
+8. IMPORTANT: If user wants to keep only certain criteria and remove others (e.g., "remove all except X", "keep only X", "make it shorter", "only crucial things"), classify as "regenerate" with context describing what to keep.
+
+EXAMPLES:
+- "Make criterion 3 more specific about error cases" -> modify_specific, target_criterion=3, modification_details="more specific about error cases"
+- "The second one should mention timeout handling" -> modify_specific, target_criterion=2, modification_details="mention timeout handling"
+- "Add a criterion for accessibility" -> add_criterion, modification_details="accessibility"
+- "We're missing validation for empty inputs" -> add_criterion, modification_details="validation for empty inputs"
+- "Remove the last one" -> remove_criterion, target_criterion=<count of criteria>
+- "Delete criterion 4" -> remove_criterion, target_criterion=4
+- "Convert this to BDD format" -> change_format, new_format="bdd"
+- "I prefer Given/When/Then style" -> change_format, new_format="bdd"
+- "Switch to checklist" -> change_format, new_format="checklist"
+- "Regenerate but focus more on edge cases" -> regenerate, regeneration_context="focus more on edge cases"
+- "Start over with emphasis on security" -> regenerate, regeneration_context="emphasis on security"
+- "Remove all except Feature flag implementation" -> regenerate, regeneration_context="keep only the criterion about Feature flag implementation and remove all others"
+- "Keep only the crucial things" -> regenerate, regeneration_context="keep only the most crucial/critical acceptance criteria, remove less important ones"
+- "Make the list shorter, only key points" -> regenerate, regeneration_context="shorten to only the key/essential acceptance criteria"
+- "Simplify this to 3 main criteria" -> regenerate, regeneration_context="simplify to only 3 main acceptance criteria"
+- "Looks good, save it" -> approve
+- "Perfect!" -> approve
+- "That works for me" -> approve
+- "Cancel" -> cancel
+- "Never mind, stop" -> cancel
+- "Change it" -> clarification, clarification_question="Which criterion would you like to change, and how?"
+
+Return ONLY the JSON object, no additional text.

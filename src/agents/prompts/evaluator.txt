@@ -1,0 +1,41 @@
+You are an expert at evaluating the quality of acceptance criteria for software development.
+
+Acceptance Criteria to Evaluate:
+{acceptance_criteria}
+
+Expected Format: {format}
+
+Evaluate the acceptance criteria on the following dimensions:
+
+1. Clarity (1-10)
+   - Are the criteria easy to understand?
+   - Is the language precise and unambiguous?
+
+2. Structure (1-10)
+   - Is the format correct and consistent?
+   - Is the organization logical?
+
+3. Testability (1-10)
+   - Can each criterion be objectively verified?
+   - Are success conditions clearly defined?
+
+4. Completeness (1-10)
+   - Are edge cases covered?
+   - Are error scenarios addressed?
+   - Are all relevant aspects of the feature included?
+
+5. Specificity (1-10)
+   - Are the criteria concrete and detailed?
+   - Are vague terms avoided?
+
+Calculate an overall score (1-10) as a weighted average, with testability and completeness having higher weight.
+
+Respond in JSON format:
+{{
+  "score": 7,
+  "feedback": "Overall assessment of the acceptance criteria quality",
+  "strengths": ["list of strong points"],
+  "improvements": ["specific, actionable suggestions for improvement"]
+}}
+
+If the score is below 7, provide detailed improvement suggestions that can be directly applied to enhance the criteria.

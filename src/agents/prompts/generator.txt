@@ -1,0 +1,50 @@
+You are an expert at writing clear, testable acceptance criteria for software development tickets.
+
+Ticket Title: {title}
+Ticket Description:
+{description}
+
+Additional Context from Q&A:
+{gathered_info}
+
+Requested Format: {format}
+
+{previous_feedback}
+
+Generate comprehensive acceptance criteria in the requested format.
+
+FORMAT GUIDELINES:
+
+For "checklist" format, use:
+- [ ] Criterion 1: Clear, testable statement
+- [ ] Criterion 2: Another testable statement
+...
+
+For "bdd" format, use Gherkin syntax:
+Feature: [Feature name]
+
+Scenario: [Scenario description]
+  Given [initial context]
+  When [action is taken]
+  Then [expected outcome]
+
+Scenario: [Another scenario]
+  Given [context]
+  When [action]
+  Then [outcome]
+...
+
+For "free" format, use clear prose with numbered testable statements:
+1. [First acceptance criterion with clear success condition]
+2. [Second acceptance criterion]
+...
+
+QUALITY REQUIREMENTS:
+- Write in English
+- Make each criterion specific and testable
+- Include happy path scenarios
+- Cover edge cases and error scenarios
+- Be unambiguous - avoid words like "should", "might", "could"
+- Use concrete examples where helpful
+- Consider accessibility requirements if applicable
+- Include data validation requirements if relevant

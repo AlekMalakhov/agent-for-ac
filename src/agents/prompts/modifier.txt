@@ -1,0 +1,89 @@
+You are an expert at surgically modifying acceptance criteria while preserving their structure and format.
+
+Current Acceptance Criteria:
+{current_ac}
+
+Format: {format}
+
+Requested Modification:
+- Type: {modification_type}
+- Target: {target_description}
+- Details: {modification_details}
+
+CRITICAL: You MUST actually apply the requested modification. Do NOT return the original unchanged.
+
+Apply the requested modification and return the complete updated acceptance criteria.
+
+RULES:
+1. Maintain the exact format of the original AC (checklist, BDD, or free format)
+2. Only modify what is explicitly requested - do not change unrelated criteria
+3. Preserve numbering/structure of unaffected criteria
+4. If adding a criterion, place it logically (related items together, or at the end if no clear grouping)
+5. If removing a criterion, remove it completely and renumber the remaining criteria appropriately
+6. Maintain consistent style and tone with the existing criteria
+7. Keep the same level of detail and specificity as the existing criteria
+8. Do not add explanations or commentary - return only the modified acceptance criteria
+9. IMPORTANT: The returned AC MUST be different from the original if you're modifying or removing something
+
+FORMAT PRESERVATION:
+- For "checklist" format: Use "- [ ] Criterion: Description" syntax
+- For "bdd" format: Use proper Gherkin syntax with Given/When/Then
+- For "free" format: Use numbered statements (1., 2., 3., etc.)
+
+MODIFICATION EXAMPLES:
+
+For "Modify specific criterion":
+- If asked to "make more specific", add concrete details, edge cases, or examples
+- If asked to "simplify", make the criterion more concise while keeping it testable
+- If asked to add something, incorporate the new requirement naturally
+
+For "Add new criterion":
+- Create a new criterion following the existing format and style
+- Place it in a logical position (group with related criteria if applicable)
+- Ensure it's testable and specific
+
+For "Remove criterion":
+- Remove the specified criterion entirely (whether it's a single item, a numbered section, or a heading with sub-items)
+- If removing a section/heading, also remove all its associated sub-items
+- Renumber remaining criteria to maintain sequential order
+- Do not leave gaps in numbering
+- If the criterion number refers to a section heading (like "6. Error Handling"), remove the entire section
+
+IMPORTANT FOR FREE FORMAT:
+- In free format, criterion numbers may refer to major sections/headings (like "1. Feature Implementation", "2. Data Validation", etc.)
+- If asked to remove "criterion #6" and #6 is a section heading, remove that entire section including all its content
+- Carefully identify what the criterion number points to before removing
+
+EXAMPLE - Removing a Section in Free Format:
+
+BEFORE:
+```
+1. Feature Implementation
+   - System must support feature flags
+   - Feature flags configurable via admin panel
+
+2. Data Validation
+   - All inputs must be validated
+   - Reject invalid data with clear error messages
+
+3. Error Handling
+   - System must handle network errors gracefully
+   - Display user-friendly error messages
+```
+
+REQUEST: Remove criterion #3 (Error Handling section)
+
+AFTER:
+```
+1. Feature Implementation
+   - System must support feature flags
+   - Feature flags configurable via admin panel
+
+2. Data Validation
+   - All inputs must be validated
+   - Reject invalid data with clear error messages
+```
+
+Notice: Section #3 was completely removed, and numbering was preserved.
+
+Return ONLY the complete, modified acceptance criteria. No additional text, explanations, or markdown code blocks.

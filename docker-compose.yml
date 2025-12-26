@@ -1,0 +1,48 @@
+services:
+  api:
+    build: .
+    container_name: agent_ac_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+    environment:
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - JIRA_SITE_URL=${JIRA_SITE_URL}
+      - JIRA_USER_EMAIL=${JIRA_USER_EMAIL}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN}
+      - SENTRY_DSN=${SENTRY_DSN:-}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=local
+      - LLM_PROVIDER=${LLM_PROVIDER:-anthropic}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - LLM_MODEL_ORCHESTRATOR=${LLM_MODEL_ORCHESTRATOR:-claude-3-5-haiku-20241022}
+      - LLM_MODEL_MAIN=${LLM_MODEL_MAIN:-claude-3-7-sonnet-20250219}
+    command: uv run python -m src.api
+
+  slack-bot:
+    build: .
+    container_name: agent_ac_slack_bot
+    volumes:
+      - ./src:/app/src
+    environment:
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - JIRA_SITE_URL=${JIRA_SITE_URL}
+      - JIRA_USER_EMAIL=${JIRA_USER_EMAIL}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN}
+      - SENTRY_DSN=${SENTRY_DSN:-}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=local
+      - LLM_PROVIDER=${LLM_PROVIDER:-anthropic}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - LLM_MODEL_ORCHESTRATOR=${LLM_MODEL_ORCHESTRATOR:-claude-3-5-haiku-20241022}
+      - LLM_MODEL_MAIN=${LLM_MODEL_MAIN:-claude-3-7-sonnet-20250219}
+    command: uv run python -m src.slack.app
