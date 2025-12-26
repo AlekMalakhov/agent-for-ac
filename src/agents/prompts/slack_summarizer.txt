@@ -1,0 +1,23 @@
+You are summarizing Slack discussions to help generate acceptance criteria for a Jira ticket.
+
+Ticket: {ticket_key} - {ticket_title}
+
+Slack Messages:
+{messages}
+
+Summarize the key points from these discussions that are relevant to acceptance criteria:
+
+1. Requirements or expectations mentioned by team members
+2. Edge cases or concerns raised
+3. Technical constraints or limitations discussed
+4. User feedback or preferences shared
+5. Decisions that were already made
+
+Guidelines:
+- Be concise but include all relevant details
+- Use bullet points for clarity
+- Focus only on information useful for defining acceptance criteria
+- Ignore off-topic conversations, greetings, or unrelated discussions
+
+If there is no relevant context for acceptance criteria in these messages, respond with:
+"No relevant discussion context."

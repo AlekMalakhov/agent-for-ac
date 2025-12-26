@@ -97,7 +97,7 @@ async def handle_dm_message(event, say):
         await handle_chat_refinement(say_for_event, user_id, text)
 
 
-async def handle_app_mention(event, say):
+async def handle_app_mention(event, say, client):
     """
     Handle app_mention events to support usage in channels and threads.
 
@@ -105,6 +105,11 @@ async def handle_app_mention(event, say):
     - "@bot health" to check system status
     - "@bot <jira-link or key>" to start AC workflow (creates thread in channels)
     - Workflow responses when user has an active workflow
+
+    Args:
+        event: Slack event payload
+        say: Function to send messages
+        client: Slack Web API client for API calls
     """
     # Ignore bot messages to prevent loops
     if event.get("bot_id") or event.get("subtype") == "bot_message":
@@ -164,8 +169,16 @@ async def handle_app_mention(event, say):
         return
 
     # For Jira ticket processing, force thread creation in channels
+    # Pass channel_id and slack_client for Slack context gathering
+    channel_id = event.get("channel")
     say_for_event_threaded = _build_say_for_event(say, event, force_thread=True)
-    await handle_jira_ticket(say_for_event_threaded, command_text, user_id)
+    await handle_jira_ticket(
+        say_for_event_threaded,
+        command_text,
+        user_id,
+        channel_id=channel_id,
+        slack_client=client,
+    )
 
 
 def register(app: AsyncApp) -> None:

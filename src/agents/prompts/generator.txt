@@ -6,7 +6,7 @@ Ticket Description:
 
 Additional Context from Q&A:
 {gathered_info}
-
+{slack_context}
 Requested Format: {format}
 
 {previous_feedback}

@@ -4,10 +4,12 @@ from typing import Literal
 
 import structlog
 from slack_bolt.async_app import AsyncApp
+from slack_sdk.web.async_client import AsyncWebClient
 
 from src.agents import create_ac_workflow, create_chat_refinement_workflow, create_initial_state
 from src.agents.information_gatherer import add_user_answer
 from src.agents.refiner import add_user_message_to_chat
+from src.config.settings import get_settings
 from src.core.exceptions import (
     JiraConnectionError,
     JiraInvalidTicketLinkError,
@@ -16,6 +18,7 @@ from src.core.exceptions import (
     JiraUnsupportedTicketTypeError,
 )
 from src.services.jira import get_jira_service
+from src.services.slack_context import get_channel_context_safe
 
 logger = structlog.get_logger()
 
@@ -95,20 +98,29 @@ async def handle_ac_agent_command(ack, command, say):
     await handle_jira_ticket(say, text, user_id)
 
 
-async def handle_jira_ticket(say, ticket_input: str, user_id: str) -> None:
+async def handle_jira_ticket(
+    say,
+    ticket_input: str,
+    user_id: str,
+    channel_id: str | None = None,
+    slack_client: AsyncWebClient | None = None,
+) -> None:
     """
     Handle Jira ticket processing for AC generation using AI agents.
 
     This function:
     1. Reads the Jira ticket
-    2. Starts the AI agent workflow
-    3. Handles information gathering interactions
-    4. Presents generated AC for user approval
+    2. Gathers Slack context from the channel (if available)
+    3. Starts the AI agent workflow
+    4. Handles information gathering interactions
+    5. Presents generated AC for user approval
 
     Args:
         say: Slack say function for sending messages
         ticket_input: Jira ticket URL or key
         user_id: Slack user ID for tracking workflow state
+        channel_id: Optional channel ID for Slack context gathering
+        slack_client: Optional Slack Web API client for context gathering
     """
     try:
         # Get Jira service
@@ -137,7 +149,39 @@ async def handle_jira_ticket(say, ticket_input: str, user_id: str) -> None:
                 "I will generate new criteria."
             )
 
-        # Step 3: Ask for AC format preference
+        # Step 3: Gather Slack context (if in a channel)
+        slack_context = None
+        slack_context_source = None
+        settings = get_settings()
+
+        if channel_id and slack_client and settings.slack_context_enabled:
+            await say("Searching for related discussions in this channel...")
+
+            context_result = await get_channel_context_safe(
+                client=slack_client,
+                channel_id=channel_id,
+                ticket_key=ticket.key,
+                ticket_title=ticket.title,
+            )
+
+            if context_result.success and context_result.summary:
+                slack_context = context_result.summary
+                slack_context_source = context_result.source
+                await say(
+                    f"Found {context_result.total_messages} related message(s). "
+                    "Context will be used to enrich AC generation."
+                )
+            elif context_result.error:
+                logger.warning(
+                    "slack_context_unavailable",
+                    channel_id=channel_id,
+                    error=context_result.error,
+                )
+                await say("Could not gather Slack context. Proceeding with ticket information only.")
+            else:
+                await say("No related discussions found in this channel.")
+
+        # Step 4: Ask for AC format preference
         await say(
             "*Choose acceptance criteria format:*\n"
             "• `checklist` - Simple checkbox format (default)\n"
@@ -152,12 +196,15 @@ async def handle_jira_ticket(say, ticket_input: str, user_id: str) -> None:
             "ticket": ticket,
             "detection_result": detection_result,
             "jira_service": jira_service,
+            "slack_context": slack_context,
+            "slack_context_source": slack_context_source,
         }
 
         logger.info(
             "workflow_started",
             ticket_key=ticket.key,
             user_id=user_id,
+            has_slack_context=slack_context is not None,
         )
 
     except JiraInvalidTicketLinkError as e:
@@ -236,6 +283,8 @@ async def handle_format_selection(
         selected_format = "checklist"
 
     ticket = workflow_context["ticket"]
+    slack_context = workflow_context.get("slack_context")
+    slack_context_source = workflow_context.get("slack_context_source")
 
     await say(f"Format selected: *{selected_format}*\n\nAnalyzing ticket information...")
 
@@ -248,6 +297,8 @@ async def handle_format_selection(
         ticket_url=ticket.url,
         user_id=user_id,
         selected_format=selected_format,
+        slack_context=slack_context,
+        slack_context_source=slack_context_source,
     )
 
     # Create and run workflow

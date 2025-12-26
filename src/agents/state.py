@@ -39,6 +39,10 @@ class AgentState(TypedDict):
     is_complete: bool
     error: str | None
 
+    # Slack context fields
+    slack_context: str | None  # LLM-summarized context from Slack discussions
+    slack_context_source: str | None  # "channel" or "none"
+
     # Chat refinement fields
     chat_history: list[dict]  # [{"role": "user"|"assistant", "content": "..."}]
     refinement_count: int  # Track number of refinements

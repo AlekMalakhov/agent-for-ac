@@ -50,6 +50,11 @@ class Settings(BaseSettings):
     llm_model_orchestrator: str = "claude-3-5-haiku-20241022"
     llm_model_main: str = "claude-3-7-sonnet-20250219"
 
+    # Slack Context Configuration
+    slack_context_enabled: bool = True
+    slack_context_max_messages: int = 100
+    slack_context_lookback_hours: int = 168  # 7 days
+
     @field_validator("log_level", mode="before")
     @classmethod
     def validate_log_level(cls, v: str) -> str:

@@ -57,6 +57,27 @@ Focus on improving the specific areas mentioned above.
 """
 
 
+def format_slack_context(slack_context: str | None) -> str:
+    """
+    Format Slack context for prompt inclusion.
+
+    Args:
+        slack_context: LLM-summarized context from Slack discussions.
+
+    Returns:
+        str: Formatted Slack context section.
+    """
+    if not slack_context:
+        return ""
+
+    return f"""
+Slack Discussion Context:
+{slack_context}
+
+Use the above context from team discussions to inform your acceptance criteria.
+"""
+
+
 async def generator_node(state: AgentState) -> dict:
     """
     Generator Agent node for the workflow.
@@ -85,12 +106,14 @@ async def generator_node(state: AgentState) -> dict:
 
         gathered_info_str = format_gathered_info(state.get("gathered_information", []))
         previous_feedback = format_previous_feedback(state.get("evaluator_feedback"))
+        slack_context_str = format_slack_context(state.get("slack_context"))
 
         prompt = format_prompt(
             "generator.txt",
             title=state["ticket_title"],
             description=state["ticket_description"],
             gathered_info=gathered_info_str,
+            slack_context=slack_context_str,
             format=selected_format,
             previous_feedback=previous_feedback,
         )

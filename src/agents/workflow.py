@@ -249,6 +249,8 @@ def create_initial_state(
     ticket_url: str,
     user_id: str,
     selected_format: Literal["checklist", "bdd", "free"] | None = None,
+    slack_context: str | None = None,
+    slack_context_source: str | None = None,
 ) -> AgentState:
     """
     Create initial workflow state from ticket data.
@@ -261,6 +263,8 @@ def create_initial_state(
         ticket_url: URL to the ticket
         user_id: Slack user ID
         selected_format: AC format preference
+        slack_context: LLM-summarized context from Slack discussions
+        slack_context_source: Source of context ("channel" or "none")
 
     Returns:
         AgentState: Initialized state for workflow.
@@ -285,6 +289,9 @@ def create_initial_state(
         needs_more_info=False,
         is_complete=False,
         error=None,
+        # Slack context fields
+        slack_context=slack_context,
+        slack_context_source=slack_context_source,
         # Chat refinement fields
         chat_history=[],
         refinement_count=0,

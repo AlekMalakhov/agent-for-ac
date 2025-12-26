@@ -108,3 +108,38 @@ class JiraInvalidTicketLinkError(JiraError):
     """
 
     pass
+
+
+class SlackContextError(ApplicationError):
+    """
+    Base exception for Slack context gathering errors.
+
+    All Slack context exceptions should inherit from this base class.
+    """
+
+    pass
+
+
+class SlackAPIError(SlackContextError):
+    """
+    Raised when Slack API call fails.
+
+    Examples:
+        - API rate limiting
+        - Network errors
+        - Invalid channel access
+    """
+
+    pass
+
+
+class SlackScopeError(SlackContextError):
+    """
+    Raised when required Slack scopes are missing.
+
+    Examples:
+        - Missing channels:history scope
+        - Missing groups:history scope
+    """
+
+    pass
