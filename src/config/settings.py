@@ -55,6 +55,17 @@ class Settings(BaseSettings):
     slack_context_max_messages: int = 100
     slack_context_lookback_hours: int = 168  # 7 days
 
+    # Barley API Configuration
+    barley_enabled: bool = True
+    barley_api_url: str = "https://fastapi.barley.provectus.pro/v1/chat/completions"
+    barley_api_token: SecretStr | None = None
+    barley_timeout: int = 120  # seconds (Barley can be slow)
+
+    # Webhook Configuration (Proactive AC Generation)
+    webhook_enabled: bool = True
+    webhook_secret: SecretStr | None = None  # Optional secret for webhook validation
+    webhook_target_statuses: list[str] = ["To Do", "ToDo", "TODO"]  # Statuses that trigger AC check
+
     @field_validator("log_level", mode="before")
     @classmethod
     def validate_log_level(cls, v: str) -> str:
