@@ -110,11 +110,16 @@ async def handle_jira_webhook(
             ticket_key=payload.get_ticket_key(),
         )
 
-    # Get Slack client from app state
-    slack_client = request.app.state.slack_client
+    # Get Slack client - lazy initialization for serverless
+    slack_client = getattr(request.app.state, "slack_client", None)
     if not slack_client:
-        logger.error("webhook_no_slack_client")
-        raise HTTPException(status_code=503, detail="Slack client not initialized")
+        # Lazy initialization for serverless environments (Vercel)
+        from slack_sdk.web.async_client import AsyncWebClient
+        slack_client = AsyncWebClient(
+            token=settings.slack_bot_token.get_secret_value()
+        )
+        request.app.state.slack_client = slack_client
+        logger.info("slack_client_lazy_initialized")
 
     # Process the webhook
     webhook_service = await get_webhook_service(slack_client)
